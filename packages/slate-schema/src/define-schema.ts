@@ -77,7 +77,7 @@ export const defineSchema = (
             const range = Editor.range(editor, parentPath)
             Editor.removeNodes(editor, {
               at: range,
-              match: ([, p]) => p.length === 1,
+              match: n => parent.children.includes(n),
             })
           } else {
             Editor.removeNodes(editor, { at: parentPath })
@@ -101,13 +101,13 @@ export const defineSchema = (
 
         case 'child_min_invalid': {
           const { path } = error
-          const [, parentPath] = Editor.parent(editor, path)
+          const [parent, parentPath] = Editor.parent(editor, path)
 
           if (parentPath.length === 0) {
             const range = Editor.range(editor, parentPath)
             Editor.removeNodes(editor, {
               at: range,
-              match: ([, p]) => p.length === 1,
+              match: n => parent.children.includes(n),
             })
           } else {
             Editor.removeNodes(editor, { at: parentPath })

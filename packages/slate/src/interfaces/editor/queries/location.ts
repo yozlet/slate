@@ -273,7 +273,7 @@ export const LocationQueries = {
     const path = Editor.path(editor, at)
 
     for (const entry of Editor.levels(editor, { at: path })) {
-      if (Editor.isMatch(editor, entry, match)) {
+      if (Editor.isMatch(editor, entry[0], match)) {
         return entry
       }
     }
@@ -305,8 +305,8 @@ export const LocationQueries = {
 
     if (match == null) {
       if (Path.isPath(at)) {
-        const path = at
-        match = ([, p]) => Path.equals(p, path)
+        const [node] = Editor.node(editor, at)
+        match = n => n === node
       } else {
         match = () => true
       }
@@ -319,7 +319,7 @@ export const LocationQueries = {
         continue
       }
 
-      if (Editor.isMatch(editor, [n, p], match)) {
+      if (Editor.isMatch(editor, n, match)) {
         prevPath = p
         yield [n, p]
       }
@@ -423,7 +423,7 @@ export const LocationQueries = {
           }
         }
 
-        if (!Editor.isMatch(editor, entry, match)) {
+        if (!Editor.isMatch(editor, entry[0], match)) {
           continue
         }
 

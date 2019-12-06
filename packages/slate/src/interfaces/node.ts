@@ -548,5 +548,5 @@ export type NodeMatch =
   | 'editor'
   | 'void'
   | Partial<Node>
-  | ((entry: NodeEntry) => boolean)
+  | ((node: Node, editor: Editor) => boolean)
   | NodeMatch[]

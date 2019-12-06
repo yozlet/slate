@@ -24,7 +24,7 @@ export const checkNode = (
   const { match: m, validate: v } = rule
   const [node, path] = entry
 
-  if (Editor.isMatch(editor, entry, m)) {
+  if (Editor.isMatch(editor, node, m)) {
     if ('properties' in v) {
       const { children, text, ...existing } = node
 
@@ -58,7 +58,7 @@ export const checkNode = (
         const n = Node.child(node, 0)
         const p = path.concat(0)
 
-        if (!Editor.isMatch(editor, [n, p], v.first)) {
+        if (!Editor.isMatch(editor, n, v.first)) {
           return { code: 'first_child_invalid', node: n, path: p, index: 0 }
         }
       }
@@ -68,7 +68,7 @@ export const checkNode = (
         const n = Node.child(node, i)
         const p = path.concat(i)
 
-        if (!Editor.isMatch(editor, [n, p], v.last)) {
+        if (!Editor.isMatch(editor, n, v.last)) {
           return { code: 'last_child_invalid', node: n, path: p, index: i }
         }
       }
@@ -116,7 +116,7 @@ export const checkAncestor = (
   const { validate: v } = rule
   const [parent, parentPath] = entry
   const processed = new Set()
-  const isMatch = Editor.isMatch(editor, entry, rule.match)
+  const isMatch = Editor.isMatch(editor, parent, rule.match)
   const groups = 'children' in v && v.children != null ? v.children : []
   let index = 0
   let count = 0
@@ -164,10 +164,7 @@ export const checkAncestor = (
       continue
     }
 
-    if (
-      child &&
-      Editor.isMatch(editor, [child, childPath], group.match || {})
-    ) {
+    if (child && Editor.isMatch(editor, child, group.match || {})) {
       count++
     }
     // Since we want to report overflow on last matching child we don't
@@ -213,7 +210,7 @@ export const checkAncestor = (
       }
     }
 
-    if (Editor.isMatch(editor, [child, childPath], group.match || {})) {
+    if (Editor.isMatch(editor, child, group.match || {})) {
       index++
       continue
     }
@@ -234,7 +231,7 @@ export const checkAncestor = (
       // won't report errors, and we can break to error out as minimum.
       const nc = groups[g + 1]
 
-      if (nc && Editor.isMatch(editor, [child, childPath], nc.match || {})) {
+      if (nc && Editor.isMatch(editor, child, nc.match || {})) {
         return [
           rule,
           {
@@ -270,8 +267,8 @@ export const checkParent = (
   if (
     'parent' in v &&
     v.parent != null &&
-    Editor.isMatch(editor, [child, childPath], m) &&
-    !Editor.isMatch(editor, [parent, parentPath], v.parent)
+    Editor.isMatch(editor, child, m) &&
+    !Editor.isMatch(editor, parent, v.parent)
   ) {
     return {
       code: 'parent_invalid',
@@ -285,12 +282,12 @@ export const checkParent = (
     'previous' in v &&
     v.previous != null &&
     index > 0 &&
-    Editor.isMatch(editor, [child, childPath], m)
+    Editor.isMatch(editor, child, m)
   ) {
     const prevChild = Node.child(parent, index - 1)
     const prevPath = parentPath.concat(index - 1)
 
-    if (!Editor.isMatch(editor, [prevChild, prevPath], v.previous)) {
+    if (!Editor.isMatch(editor, prevChild, v.previous)) {
       return {
         code: 'previous_sibling_invalid',
         node: prevChild,
@@ -303,12 +300,12 @@ export const checkParent = (
     'next' in v &&
     v.next != null &&
     index < parent.children.length - 1 &&
-    Editor.isMatch(editor, [child, childPath], m)
+    Editor.isMatch(editor, child, m)
   ) {
     const nextChild = Node.child(parent, index + 1)
     const nextPath = parentPath.concat(index + 1)
 
-    if (!Editor.isMatch(editor, [nextChild, nextPath], v.next)) {
+    if (!Editor.isMatch(editor, nextChild, v.next)) {
       return {
         code: 'next_sibling_invalid',
         node: nextChild,
